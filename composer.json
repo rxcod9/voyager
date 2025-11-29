@@ -29,7 +29,7 @@
         "phpunit/phpcov": ">=6.0",
         "phpunit/phpunit": "^10.5",
         "orchestra/testbench": "^9.0 || ^10.0",
-        "laravel/browser-kit-testing": "^8.0",
+        "laravel/browser-kit-testing": "^7.2.6",
         "orchestra/testbench-browser-kit": "^9.0 || ^10.0",
         "nunomaduro/collision": "^8.0"
     },
