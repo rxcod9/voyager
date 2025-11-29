@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": "^8.2 || ^8.3 || ^8.4",
-        "illuminate/support": "^11.0 || ^12.0",
+        "illuminate/support": "^12.0",
         "intervention/image-laravel": "^1.5",
         "intervention/image": "^3.4",
         "doctrine/dbal": "^4.0",
@@ -26,11 +26,8 @@
         "ext-json": "*"
     },
     "require-dev": {
-        "phpunit/phpcov": ">=6.0",
-        "phpunit/phpunit": "^10.5",
-        "orchestra/testbench": "^9.0 || ^10.0",
-        "laravel/browser-kit-testing": "^7.2.6",
-        "orchestra/testbench-browser-kit": "^9.0 || ^10.0",
+        "phpunit/phpunit": "^11.5 || ^12.0",
+        "orchestra/testbench": "^10.0",
         "nunomaduro/collision": "^8.0"
     },
     "autoload": {
