@@ -36,13 +36,13 @@ class SearchTest extends TestCase
             'filter' => 'equals',
             's'      => '0',
         ];
-        $this->visit(route('voyager.posts.index').'?'.http_build_query($params))
+        $this->get(route('voyager.posts.index').'?'.http_build_query($params))
             ->dontSee($post->title)
-            ->see(Post::where('featured', 0)->first()->title);
+            ->assertSee(Post::where('featured', 0)->first()->title);
 
         $params['s'] = 1;
-        $this->visit(route('voyager.posts.index').'?'.http_build_query($params))
-            ->see($post->title)
+        $this->get(route('voyager.posts.index').'?'.http_build_query($params))
+            ->assertSee($post->title)
             ->dontSee(Post::where('featured', 0)->first()->title);
     }
 

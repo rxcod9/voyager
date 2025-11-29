@@ -22,7 +22,7 @@ class SettingsTest extends TestCase
         $key = 'site.title';
         $newTitle = 'Just Another LaravelVoyager.com Site';
 
-        $this->visit(route('voyager.settings.index'))
+        $this->get(route('voyager.settings.index'))
              ->seeInField($key, Setting::where('key', '=', $key)->first()->value)
              ->type($newTitle, $key)
              ->seeInElement('button', __('voyager::settings.save'))
