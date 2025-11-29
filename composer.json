@@ -54,14 +54,5 @@
     },
     "suggest": {
         "laravel/legacy-factories": "Required to run Voyager tests with Laravel 8.x"
-    },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../voyager-hooks",
-            "options": {
-                "symlink": true
-            }
-        }
-    ]
+    }
 }
