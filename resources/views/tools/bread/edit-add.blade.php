@@ -310,7 +310,7 @@
                                         <strong>{{ __('voyager::database.type') }}:</strong> <span>{{ $data['type'] }}</span><br/>
                                         <strong>{{ __('voyager::database.key') }}:</strong> <span>{{ $data['key'] }}</span><br/>
                                         <strong>{{ __('voyager::generic.required') }}:</strong>
-                                        @if($data['null'] == "NO")
+                                        @if($data['notnull'] == true)
                                             <span>{{ __('voyager::generic.yes') }}</span>
                                             <input type="hidden" value="1" name="field_required_{{ $data['field'] }}" checked="checked">
                                         @else
@@ -622,7 +622,7 @@
                     var selected_value = $(this).data('selected');
 
                     var options = $.map(data, function (obj, key) {
-                        return {id: key, text: key};
+                        return {id: obj.field, text: obj.name};
                     });
 
                     $(this).empty().select2({

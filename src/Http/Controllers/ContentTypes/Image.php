@@ -4,8 +4,7 @@ namespace TCG\Voyager\Http\Controllers\ContentTypes;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\Constraint;
-use Intervention\Image\Facades\Image as InterventionImage;
+use Intervention\Image\ImageManager;
 
 class Image extends BaseType
 {
@@ -18,7 +17,8 @@ class Image extends BaseType
 
             $filename = $this->generateFileName($file, $path);
 
-            $image = InterventionImage::make($file)->orientate();
+            $manager = ImageManager::gd();
+            $image = $manager->read($file->getPathname())->orient();
 
             $fullPath = $path.$filename.'.'.$file->getClientOriginalExtension();
 
@@ -27,11 +27,11 @@ class Image extends BaseType
             if (isset($this->options->resize) && (
                 isset($this->options->resize->width) || isset($this->options->resize->height)
             )) {
-                if (isset($this->options->resize->width)) {
-                    $resize_width = $this->options->resize->width;
+                if (isset($this->options->resize->width) && $this->options->resize->width != null && $this->options->resize->width != 'null') {
+                    $resize_width = intval($this->options->resize->width);
                 }
-                if (isset($this->options->resize->height)) {
-                    $resize_height = $this->options->resize->height;
+                if (isset($this->options->resize->height) && $this->options->resize->height != null && $this->options->resize->height != 'null') {
+                    $resize_height = intval($this->options->resize->height);
                 }
             } else {
                 $resize_width = $image->width();
@@ -40,23 +40,19 @@ class Image extends BaseType
 
             $resize_quality = isset($this->options->quality) ? intval($this->options->quality) : 75;
 
-            $image = $image->resize(
-                $resize_width,
-                $resize_height,
-                function (Constraint $constraint) {
-                    $constraint->aspectRatio();
-                    if (isset($this->options->upsize) && !$this->options->upsize) {
-                        $constraint->upsize();
-                    }
-                }
-            )->encode($file->getClientOriginalExtension(), $resize_quality);
+            $image = $image->scale(
+                width: $resize_width,
+                height: $resize_height
+            );
+
+            $encoded = $this->encodeForExtension($image, $file->getClientOriginalExtension(), $resize_quality);
 
             if ($this->is_animated_gif($file)) {
                 Storage::disk(config('voyager.storage.disk'))->put($fullPath, file_get_contents($file), 'public');
                 $fullPathStatic = $path.$filename.'-static.'.$file->getClientOriginalExtension();
-                Storage::disk(config('voyager.storage.disk'))->put($fullPathStatic, (string) $image, 'public');
+                Storage::disk(config('voyager.storage.disk'))->put($fullPathStatic, $encoded, 'public');
             } else {
-                Storage::disk(config('voyager.storage.disk'))->put($fullPath, (string) $image, 'public');
+                Storage::disk(config('voyager.storage.disk'))->put($fullPath, $encoded, 'public');
             }
 
             if (isset($this->options->thumbnails)) {
@@ -74,30 +70,27 @@ class Image extends BaseType
                             $thumb_resize_height = intval($thumb_resize_height * $scale);
                         }
 
-                        $image = InterventionImage::make($file)
-                            ->orientate()
-                            ->resize(
-                                $thumb_resize_width,
-                                $thumb_resize_height,
-                                function (Constraint $constraint) {
-                                    $constraint->aspectRatio();
-                                    if (isset($this->options->upsize) && !$this->options->upsize) {
-                                        $constraint->upsize();
-                                    }
-                                }
-                            )->encode($file->getClientOriginalExtension(), $resize_quality);
+                        $thumb = $manager->read($file->getPathname())
+                            ->orient()
+                            ->scale(
+                                width: $thumb_resize_width,
+                                height: $thumb_resize_height
+                            );
+
+                        $encodedThumb = $this->encodeForExtension($thumb, $file->getClientOriginalExtension(), $resize_quality);
                     } elseif (isset($thumbnails->crop->width) && isset($thumbnails->crop->height)) {
                         $crop_width = $thumbnails->crop->width;
                         $crop_height = $thumbnails->crop->height;
-                        $image = InterventionImage::make($file)
-                            ->orientate()
-                            ->fit($crop_width, $crop_height)
-                            ->encode($file->getClientOriginalExtension(), $resize_quality);
+                        $thumb = $manager->read($file->getPathname())
+                            ->orient()
+                            ->cover($crop_width, $crop_height);
+
+                        $encodedThumb = $this->encodeForExtension($thumb, $file->getClientOriginalExtension(), $resize_quality);
                     }
 
                     Storage::disk(config('voyager.storage.disk'))->put(
                         $path.$filename.'-'.$thumbnails->name.'.'.$file->getClientOriginalExtension(),
-                        (string) $image,
+                        $encodedThumb,
                         'public'
                     );
                 }
@@ -160,5 +153,17 @@ class Image extends BaseType
         }
 
         return $frames > 1;
+    }
+
+    private function encodeForExtension($image, $extension, $quality)
+    {
+        $ext = strtolower($extension);
+        if ($ext === 'png') {
+            return $image->toPng();
+        }
+        if ($ext === 'webp') {
+            return $image->toWebp(quality: $quality);
+        }
+        return $image->toJpeg(quality: $quality);
     }
 }

@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Constraint;
-use Intervention\Image\Facades\Image;
-use League\Flysystem\Util;
+use Intervention\Image\Laravel\Facades\Image;
 use TCG\Voyager\Facades\Voyager;
 
 class VoyagerController extends Controller
@@ -55,18 +54,17 @@ class VoyagerController extends Controller
         $ext = $file->guessClientExtension();
 
         if (in_array($ext, ['jpeg', 'jpg', 'png', 'gif'])) {
-            $image = Image::make($file)
+            $image = Image::read($file->getRealPath())
                 ->resize($resizeWidth, $resizeHeight, function (Constraint $constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 });
             if ($ext !== 'gif') {
-                $image->orientate();
+                $image->orient();
             }
-            $image->encode($file->getClientOriginalExtension(), 75);
 
             // move uploaded file from temp to uploads directory
-            if (Storage::disk(config('voyager.storage.disk'))->put($fullPath, (string) $image, 'public')) {
+            if (Storage::disk(config('voyager.storage.disk'))->put($fullPath, $image->encode()->toString(), 'public')) {
                 $status = __('voyager::media.success_uploading');
                 $fullFilename = $fullPath;
             } else {
@@ -83,7 +81,8 @@ class VoyagerController extends Controller
     public function assets(Request $request)
     {
         try {
-            $path = dirname(__DIR__, 3).'/publishable/assets/'.Util::normalizeRelativePath(urldecode($request->path));
+            $normalized = ltrim(str_replace(['../', './'], '', urldecode($request->path)), '/');
+            $path = dirname(__DIR__, 3).'/publishable/assets/'.$normalized;
         } catch (\LogicException $e) {
             abort(404);
         }

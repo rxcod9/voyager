@@ -6,6 +6,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform as DoctrineAbstractPlatform;
 use Doctrine\DBAL\Types\Type as DoctrineType;
 use TCG\Voyager\Database\Platforms\Platform;
 use TCG\Voyager\Database\Schema\SchemaManager;
+use Illuminate\Support\Collection;
 
 abstract class Type extends DoctrineType
 {
@@ -34,8 +35,32 @@ abstract class Type extends DoctrineType
         $customTypeOptions = $type->customOptions ?? [];
 
         return array_merge([
-            'name' => $type->getName(),
+            'name' => self::resolveTypeName($type),
         ], $customTypeOptions);
+    }
+
+    protected static function resolveTypeName(DoctrineType $type): string
+    {
+        // DBAL 4: types are represented by class name
+        // Return short name to maintain Voyager compatibility
+
+        $class = get_class($type);
+
+        // Extract the short class name (last segment after the backslash)
+        $short = substr($class, strrpos($class, '\\') + 1);
+
+        // e.g. Doctrine\DBAL\Types\StringType -> string
+        // e.g. TCG\Voyager\Database\Types\Common\StringType -> string
+        // e.g. TCG\Voyager\Database\Types\Mysql\SomeType -> some
+        if (
+            str_starts_with($class, 'Doctrine\\DBAL\\Types\\')
+            || str_starts_with($class, 'TCG\\Voyager\\Database\\Types\\')
+        ) {
+            return strtolower(str_replace('Type', '', $short));
+        }
+
+        // Custom type: fall back to class name
+        return $class;
     }
 
     public static function getPlatformTypes()
@@ -62,15 +87,13 @@ abstract class Type extends DoctrineType
         return static::$platformTypes;
     }
 
-    public static function getPlatformTypeMapping(DoctrineAbstractPlatform $platform)
+    public static function getPlatformTypeMapping($platform)
     {
         if (static::$platformTypeMapping) {
             return static::$platformTypeMapping;
         }
 
-        static::$platformTypeMapping = collect(
-            get_protected_property($platform, 'doctrineTypeMapping')
-        );
+        static::$platformTypeMapping = collect($platform->getDoctrineTypeMapping());
 
         return static::$platformTypeMapping;
     }
