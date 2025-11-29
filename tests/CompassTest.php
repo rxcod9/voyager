@@ -45,8 +45,8 @@ class CompassTest extends TestCase
         $this->logString($info);
         $this->enableCompass();
 
-        $this->visit(route('voyager.compass.index').'?log='.base64_encode('laravel.log'))
-             ->see($info);
+        $this->get(route('voyager.compass.index').'?log='.base64_encode('laravel.log'))
+             ->assertSee($info);
     }
 
     public function testCanExecuteCommand()

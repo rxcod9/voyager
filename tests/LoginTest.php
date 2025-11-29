@@ -8,7 +8,7 @@ class LoginTest extends TestCase
 {
     public function testSuccessfulLoginWithDefaultCredentials()
     {
-        $this->visit(route('voyager.login'))
+        $this->get(route('voyager.login'))
              ->type('admin@admin.com', 'email')
              ->type('password', 'password')
              ->press(__('voyager::generic.login'))
@@ -19,12 +19,12 @@ class LoginTest extends TestCase
     {
         session()->setPreviousUrl(route('voyager.login'));
 
-        $this->visit(route('voyager.login'))
+        $this->get(route('voyager.login'))
              ->type('john@Doe.com', 'email')
              ->type('pass', 'password')
              ->press(__('voyager::generic.login'))
              ->seePageIs(route('voyager.login'))
-             ->see(__('auth.failed'))
+             ->assertSee(__('auth.failed'))
              ->seeInField('email', 'john@Doe.com');
     }
 
@@ -32,13 +32,13 @@ class LoginTest extends TestCase
     {
         Auth::loginUsingId(1);
 
-        $this->visit(route('voyager.login'))
+        $this->get(route('voyager.login'))
              ->seePageIs(route('voyager.dashboard'));
     }
 
     public function testRedirectIfNotLoggedIn()
     {
-        $this->visit(route('voyager.profile'))
+        $this->get(route('voyager.profile'))
              ->seePageIs(route('voyager.login'));
     }
 
@@ -46,7 +46,7 @@ class LoginTest extends TestCase
     {
         Auth::loginUsingId(1);
 
-        $this->visit(route('voyager.dashboard'))
+        $this->get(route('voyager.dashboard'))
              ->press(__('voyager::generic.logout'))
              ->seePageIs(route('voyager.login'));
     }
@@ -56,12 +56,12 @@ class LoginTest extends TestCase
         session()->setPreviousUrl(route('voyager.login'));
 
         for ($i = 0; $i <= 5; $i++) {
-            $t = $this->visit(route('voyager.login'))
+            $t = $this->get(route('voyager.login'))
                  ->type('john@Doe.com', 'email')
                  ->type('pass', 'password')
                  ->press(__('voyager::generic.login'));
         }
 
-        $t->see(__('auth.throttle', ['seconds' => 60]));
+        $t->assertSee(__('auth.throttle', ['seconds' => 60]));
     }
 }

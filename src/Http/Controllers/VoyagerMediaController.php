@@ -7,8 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
-use League\Flysystem\Plugin\ListWith;
+use Intervention\Image\Laravel\Facades\Image;
 use TCG\Voyager\Events\MediaFileAdded;
 use TCG\Voyager\Facades\Voyager;
 
@@ -54,8 +53,19 @@ class VoyagerMediaController extends Controller
         $dir = $this->directory.$folder;
 
         $files = [];
-        $storage = Storage::disk($this->filesystem)->addPlugin(new ListWith());
-        $storageItems = $storage->listWith(['mimetype'], $dir);
+        $storageItems = collect(Storage::disk($this->filesystem)->listContents($dir, false))
+            ->map(function ($item) {
+                return [
+                    'type'      => $item->type(),            // 'file' or 'dir'
+                    'path'      => $item->path(),            // relative path
+                    'basename'  => pathinfo($item->path(), PATHINFO_BASENAME),        // file name
+                    'filename'  => pathinfo($item->path(), PATHINFO_FILENAME),
+                    'size'      => $item->isFile() ? $item->fileSize() : null,
+                    'mimetype'  => $item->isFile() ? $item->mimeType() : null,
+                    'timestamp' => $item->lastModified(),
+                ];
+            })
+            ->all();
 
         foreach ($storageItems as $item) {
             if ($item['type'] == 'dir') {
@@ -72,7 +82,7 @@ class VoyagerMediaController extends Controller
                     continue;
                 }
                 // Its a thumbnail and thumbnails should be hidden
-                if (Str::endsWith($item['filename'], $thumbnail_names)) {
+                if (!empty($thumbnail_names) && Str::endsWith($item['filename'], $thumbnail_names)) {
                     $thumbnails[] = $item;
                     continue;
                 }
@@ -220,7 +230,7 @@ class VoyagerMediaController extends Controller
         $absolute_path = Storage::disk($this->filesystem)->path($request->upload_path);
 
         try {
-            $realPath = Storage::disk($this->filesystem)->getDriver()->getAdapter()->getPathPrefix();
+            $realPath = Storage::disk($this->filesystem)->path('/');
 
             $allowedMimeTypes = config('voyager.media.allowed_mimetypes', '*');
             if ($allowedMimeTypes != '*' && (is_array($allowedMimeTypes) && !in_array($request->file->getMimeType(), $allowedMimeTypes))) {
@@ -257,18 +267,18 @@ class VoyagerMediaController extends Controller
             ];
             if (in_array($request->file->getMimeType(), $imageMimeTypes)) {
                 $content = Storage::disk($this->filesystem)->get($file);
-                $image = Image::make($content);
+                $image = Image::read($content);
 
                 if ($request->file->getClientOriginalExtension() == 'gif') {
                     copy($request->file->getRealPath(), $realPath.$file);
                 } else {
-                    $image = $image->orientate();
+                    $image = $image->orient();
                     // Generate thumbnails
                     if (property_exists($details, 'thumbnails') && is_array($details->thumbnails)) {
                         foreach ($details->thumbnails as $thumbnail_data) {
                             $type = $thumbnail_data->type ?? 'fit';
-                            $thumbnail = Image::make(clone $image);
                             if ($type == 'fit') {
+                            $thumbnail = clone $image;
                                 $thumbnail = $thumbnail->fit(
                                     $thumbnail_data->width,
                                     ($thumbnail_data->height ?? null),
@@ -304,15 +314,25 @@ class VoyagerMediaController extends Controller
                             ) {
                                 $thumbnail = $this->addWatermarkToImage($thumbnail, $details->watermark);
                             }
+
+                            $thumbnail->encode();
+
                             $thumbnail_file = $request->upload_path.$name.'-'.($thumbnail_data->name ?? 'thumbnail').'.'.$extension;
-                            Storage::disk($this->filesystem)->put($thumbnail_file, $thumbnail->encode($extension, ($details->quality ?? 90))->encoded);
+                            Storage::disk($this->filesystem)->put(
+                                $thumbnail_file,
+                                (string) $thumbnail
+                            );
                         }
                     }
                     // Add watermark to image
                     if (property_exists($details, 'watermark') && property_exists($details->watermark, 'source')) {
                         $image = $this->addWatermarkToImage($image, $details->watermark);
                     }
-                    Storage::disk($this->filesystem)->put($file, $image->encode($extension, ($details->quality ?? 90))->encoded);
+
+                    Storage::disk($this->filesystem)->put(
+                        $file,
+                        $image->encode()->toString()
+                    );
                 }
             }
 
@@ -341,7 +361,7 @@ class VoyagerMediaController extends Controller
         $height = $request->get('height');
         $width = $request->get('width');
 
-        $realPath = Storage::disk($this->filesystem)->getDriver()->getAdapter()->getPathPrefix();
+        $realPath = Storage::disk($this->filesystem)->path('/');
         $originImagePath = $request->upload_path.'/'.$request->originImageName;
         $originImagePath = preg_replace('#/+#', '/', $originImagePath);
 
@@ -358,8 +378,9 @@ class VoyagerMediaController extends Controller
             }
 
             $content = Storage::disk($this->filesystem)->get($originImagePath);
-            $image = Image::make($content)->crop($width, $height, $x, $y);
-            Storage::disk($this->filesystem)->put($destImagePath, $image->encode()->encoded);
+            $image = Image::read($content)->crop($width, $height, $x, $y);
+
+            Storage::disk($this->filesystem)->put($destImagePath, $image->encode()->toString());
 
             $success = true;
             $message = __('voyager::media.success_crop_image');
@@ -373,7 +394,7 @@ class VoyagerMediaController extends Controller
 
     private function addWatermarkToImage($image, $options)
     {
-        $watermark = Image::make(Storage::disk($this->filesystem)->path($options->source));
+        $watermark = Image::read(Storage::disk($this->filesystem)->path($options->source));
         // Resize watermark
         $width = $image->width() * (($options->size ?? 15) / 100);
         $watermark->resize($width, null, function ($constraint) {

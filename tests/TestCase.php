@@ -3,7 +3,7 @@
 namespace TCG\Voyager\Tests;
 
 use Illuminate\Contracts\Debug\ExceptionHandler;
-use Orchestra\Testbench\BrowserKit\TestCase as OrchestraTestCase;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use TCG\Voyager\Models\User;
 use TCG\Voyager\VoyagerServiceProvider;
 

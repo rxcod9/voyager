@@ -13,7 +13,7 @@ class RouteTest extends TestCase
     {
         $this->disableExceptionHandling();
 
-        $this->visit(route('voyager.login'));
+        $this->get(route('voyager.login'));
         $this->type('admin@admin.com', 'email');
         $this->type('password', 'password');
         $this->press(__('voyager::generic.login'));

@@ -29,7 +29,7 @@ class RolesTest extends TestCase
     public function testRoles()
     {
         // Adding a New Role
-        $this->visit(route('voyager.roles.create'))
+        $this->get(route('voyager.roles.create'))
              ->type('superadmin', 'name')
              ->type('Super Admin', 'display_name')
              ->press(__('voyager::generic.submit'))
@@ -37,14 +37,14 @@ class RolesTest extends TestCase
              ->seeInDatabase('roles', ['name' => 'superadmin']);
 
         // Editing a Role
-        $this->visit(route('voyager.roles.edit', 2))
+        $this->get(route('voyager.roles.edit', 2))
              ->type('regular_user', 'name')
              ->press(__('voyager::generic.submit'))
              ->seePageIs(route('voyager.roles.index'))
              ->seeInDatabase('roles', ['name' => 'regular_user']);
 
         // Editing a Role
-        $this->visit(route('voyager.roles.edit', 2))
+        $this->get(route('voyager.roles.edit', 2))
              ->type('user', 'name')
              ->press(__('voyager::generic.submit'))
              ->seePageIs(route('voyager.roles.index'))
@@ -69,7 +69,7 @@ class RolesTest extends TestCase
         $this->notSeeInDatabase('permission_role', ['permission_id' => $this->permission_id, 'role_id' => 2]);
         Role::find(2)->permissions()->attach($this->permission_id);
 
-        $this->visit(route('voyager.roles.edit', 2))
+        $this->get(route('voyager.roles.edit', 2))
              ->uncheck('permissions['.$this->permission_id.']')
              ->press(__('voyager::generic.submit'))
              ->seePageIs(route('voyager.roles.index'))

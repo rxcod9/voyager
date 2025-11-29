@@ -34,7 +34,7 @@ class UserProfileTest extends TestCase
 
     public function testCanSeeTheUserInfoOnHisProfilePage()
     {
-        $this->visit(route('voyager.profile'))
+        $this->get(route('voyager.profile'))
              ->seeInElement('h4', $this->user->name)
              ->seeInElement('.user-email', $this->user->email)
              ->seeLink(__('voyager::profile.edit'));
@@ -42,9 +42,9 @@ class UserProfileTest extends TestCase
 
     public function testCanEditUserName()
     {
-        $this->visit(route('voyager.profile'))
+        $this->get(route('voyager.profile'))
              ->click(__('voyager::profile.edit'))
-             ->see(__('voyager::profile.edit_user'))
+             ->assertSee(__('voyager::profile.edit_user'))
              ->seePageIs($this->editPageForTheCurrentUser)
              ->type('New Awesome Name', 'name')
              ->press(__('voyager::generic.save'))
@@ -57,9 +57,9 @@ class UserProfileTest extends TestCase
 
     public function testCanEditUserEmail()
     {
-        $this->visit(route('voyager.profile'))
+        $this->get(route('voyager.profile'))
              ->click(__('voyager::profile.edit'))
-             ->see(__('voyager::profile.edit_user'))
+             ->assertSee(__('voyager::profile.edit_user'))
              ->seePageIs($this->editPageForTheCurrentUser)
              ->type('another@email.com', 'email')
              ->press(__('voyager::generic.save'))
@@ -72,9 +72,9 @@ class UserProfileTest extends TestCase
 
     public function testCanEditUserPassword()
     {
-        $this->visit(route('voyager.profile'))
+        $this->get(route('voyager.profile'))
              ->click(__('voyager::profile.edit'))
-             ->see(__('voyager::profile.edit_user'))
+             ->assertSee(__('voyager::profile.edit_user'))
              ->seePageIs($this->editPageForTheCurrentUser)
              ->type('voyager-rocks', 'password')
              ->press(__('voyager::generic.save'))
@@ -86,9 +86,9 @@ class UserProfileTest extends TestCase
 
     public function testCanEditUserAvatar()
     {
-        $this->visit(route('voyager.profile'))
+        $this->get(route('voyager.profile'))
              ->click(__('voyager::profile.edit'))
-             ->see(__('voyager::profile.edit_user'))
+             ->assertSee(__('voyager::profile.edit_user'))
              ->seePageIs($this->editPageForTheCurrentUser)
              ->attach($this->newImagePath(), 'avatar')
              ->press(__('voyager::generic.save'))
@@ -112,9 +112,9 @@ class UserProfileTest extends TestCase
             'browse_users',
         ])->get()->pluck('id')->all());
         Auth::onceUsingId($user->id);
-        $this->visit(route('voyager.profile'))
+        $this->get(route('voyager.profile'))
              ->click(__('voyager::profile.edit'))
-             ->see(__('voyager::profile.edit_user'))
+             ->assertSee(__('voyager::profile.edit_user'))
              ->seePageIs($editPageForTheCurrentUser)
              ->type('another@email.com', 'email')
              ->press(__('voyager::generic.save'))
@@ -127,9 +127,9 @@ class UserProfileTest extends TestCase
 
     public function testCanSetUserLocale()
     {
-        $this->visit(route('voyager.profile'))
+        $this->get(route('voyager.profile'))
              ->click(__('voyager::profile.edit'))
-             ->see(__('voyager::profile.edit_user'))
+             ->assertSee(__('voyager::profile.edit_user'))
              ->seePageIs($this->editPageForTheCurrentUser)
              ->select('de', 'locale')
              ->press(__('voyager::generic.save'));
@@ -152,7 +152,7 @@ class UserProfileTest extends TestCase
             $user->role->permissions()->where('key', 'browse_users')->first()
         );
 
-        $this->visit($this->editPageForTheCurrentUser)
+        $this->get($this->editPageForTheCurrentUser)
              ->press(__('voyager::generic.save'))
              ->seePageIs($this->editPageForTheCurrentUser);
     }

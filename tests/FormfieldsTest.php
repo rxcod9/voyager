@@ -26,17 +26,17 @@ class FormfieldsTest extends TestCase
             'null'    => 'NULL',
         ]));
         $this->visitRoute('voyager.categories.create')
-        ->see('Default Text')
+        ->assertSee('Default Text')
         ->type('New Text', 'text')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('New Text')
+        ->assertSee('New Text')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('Edited Text', 'text')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Edited Text')
+        ->assertSee('Edited Text')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('NULL', 'text')
@@ -54,17 +54,17 @@ class FormfieldsTest extends TestCase
         ]));
 
         $this->visitRoute('voyager.categories.create')
-        ->see('Default Text')
+        ->assertSee('Default Text')
         ->type('New Text', 'text_area')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('New Text')
+        ->assertSee('New Text')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('Edited Text', 'text_area')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Edited Text');
+        ->assertSee('Edited Text');
     }
 
     public function testFormfieldCodeeditor()
@@ -74,17 +74,17 @@ class FormfieldsTest extends TestCase
         ]));
 
         $this->visitRoute('voyager.categories.create')
-        ->see('Default Text')
+        ->assertSee('Default Text')
         ->type('New Text', 'code_editor')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('New Text')
+        ->assertSee('New Text')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('Edited Text', 'code_editor')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Edited Text');
+        ->assertSee('Edited Text');
     }
 
     public function testFormfieldMarkdown()
@@ -95,13 +95,13 @@ class FormfieldsTest extends TestCase
         ->type('# New Text', 'markdown_editor')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('New Text')
+        ->assertSee('New Text')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('# Edited Text', 'markdown_editor')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Edited Text');
+        ->assertSee('Edited Text');
     }
 
     public function testFormfieldRichtextbox()
@@ -112,13 +112,13 @@ class FormfieldsTest extends TestCase
         ->type('New Text', 'rich_text_box')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('New Text')
+        ->assertSee('New Text')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('Edited Text', 'rich_text_box')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Edited Text');
+        ->assertSee('Edited Text');
     }
 
     public function testFormfieldHidden()
@@ -128,17 +128,17 @@ class FormfieldsTest extends TestCase
         ]));
 
         $this->visitRoute('voyager.categories.create')
-        ->see('Default Text')
+        ->assertSee('Default Text')
         ->type('New Text', 'hidden')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('New Text')
+        ->assertSee('New Text')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('Edited Text', 'hidden')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Edited Text');
+        ->assertSee('Edited Text');
     }
 
     public function testFormfieldPassword()
@@ -165,17 +165,17 @@ class FormfieldsTest extends TestCase
         ]));
 
         $this->visitRoute('voyager.categories.create')
-        ->see('1')
+        ->assertSee('1')
         ->type('2', 'number')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('2')
+        ->assertSee('2')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('3', 'number')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('3');
+        ->assertSee('3');
     }
 
     public function testFormfieldCheckbox()
@@ -186,17 +186,17 @@ class FormfieldsTest extends TestCase
         ]));
 
         $this->visitRoute('voyager.categories.create')
-        ->see('Inactive')
+        ->assertSee('Inactive')
         ->check('checkbox')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Active')
+        ->assertSee('Active')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->uncheck('checkbox')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Inactive');
+        ->assertSee('Inactive');
     }
 
     public function testFormfieldTime()
@@ -207,13 +207,13 @@ class FormfieldsTest extends TestCase
         ->type('12:50', 'time')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('12:50')
+        ->assertSee('12:50')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('6:25', 'time')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('6:25');
+        ->assertSee('6:25');
     }
 
     public function testFormfieldDate()
@@ -226,13 +226,13 @@ class FormfieldsTest extends TestCase
         ->type('2019-01-01', 'date')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('2019-01-01')
+        ->assertSee('2019-01-01')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('2018-12-31', 'date')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('2018-12-31');
+        ->assertSee('2018-12-31');
     }
 
     public function testFormfieldTimestamp()
@@ -245,13 +245,13 @@ class FormfieldsTest extends TestCase
         ->type('2019-01-01 12:00:00', 'timestamp')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('2019-01-01 12:00:00')
+        ->assertSee('2019-01-01 12:00:00')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('2018-12-31 23:59:59', 'timestamp')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('2018-12-31 23:59:59')
+        ->assertSee('2018-12-31 23:59:59')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('', 'timestamp')
@@ -270,13 +270,13 @@ class FormfieldsTest extends TestCase
         ->type('#FF0000', 'color')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('#FF0000')
+        ->assertSee('#FF0000')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->type('#00FF00', 'color')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('#00FF00');
+        ->assertSee('#00FF00');
     }
 
     public function testFormfieldRadiobtn()
@@ -293,13 +293,13 @@ class FormfieldsTest extends TestCase
         ->select('radio1', 'radio_btn')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Foo')
+        ->assertSee('Foo')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->select('radio2', 'radio_btn')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Bar');
+        ->assertSee('Bar');
     }
 
     public function testFormfieldSelectDropdown()
@@ -316,13 +316,13 @@ class FormfieldsTest extends TestCase
         ->select('option1', 'select_dropdown')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Foo')
+        ->assertSee('Foo')
         ->click(__('voyager::generic.edit'))
         ->seeRouteIs('voyager.categories.edit', 1)
         ->select('option2', 'select_dropdown')
         ->press(__('voyager::generic.save'))
         ->seeRouteIs('voyager.categories.index')
-        ->see('Bar');
+        ->assertSee('Bar');
     }
 
     public function testFormfieldFile()

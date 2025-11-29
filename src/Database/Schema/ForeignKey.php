@@ -50,7 +50,7 @@ abstract class ForeignKey
     {
         return [
             'name'           => $fk->getName(),
-            'localTable'     => $fk->getLocalTableName(),
+            'localTable'     => $fk->getReferencedTableName(),
             'localColumns'   => $fk->getLocalColumns(),
             'foreignTable'   => $fk->getForeignTableName(),
             'foreignColumns' => $fk->getForeignColumns(),
