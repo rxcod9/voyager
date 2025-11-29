@@ -19,7 +19,7 @@
         "illuminate/support": "^11.0 || ^12.0",
         "intervention/image-laravel": "^1.5",
         "intervention/image": "^3.4",
-        "doctrine/dbal": "^4.3",
+        "doctrine/dbal": "^4.0",
         "laravel/ui": ">=1.0",
         "arrilot/laravel-widgets": "^3.14",
         "league/flysystem": "^3.0",
@@ -28,10 +28,10 @@
     "require-dev": {
         "phpunit/phpcov": ">=6.0",
         "phpunit/phpunit": "^10.5",
-        "orchestra/testbench": "^8.0 || ^9.0 || ^10.0",
-        "laravel/browser-kit-testing": ">=5.0.0",
-        "orchestra/testbench-browser-kit": ">=4.0",
-        "nunomaduro/collision": "^7.9"
+        "orchestra/testbench": "^9.0 || ^10.0",
+        "laravel/browser-kit-testing": "^8.0",
+        "orchestra/testbench-browser-kit": "^9.0 || ^10.0",
+        "nunomaduro/collision": "^8.0"
     },
     "autoload": {
         "psr-4": {
@@ -51,8 +51,5 @@
                 "TCG\\Voyager\\Providers\\VoyagerDummyServiceProvider"
             ]
         }
-    },
-    "suggest": {
-        "laravel/legacy-factories": "Required to run Voyager tests with Laravel 8.x"
     }
 }
